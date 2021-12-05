@@ -1,0 +1,55 @@
+Shader: |
+  #include "Luddite.hlsl"
+  BEGINPROPS
+   float4 color;
+  ENDPROPS
+
+  struct VSInput
+  {
+    float3 Pos : ATTRIB0;
+    float3 Normal : ATTRIB1;
+    float2 UV  : ATTRIB2;
+  };
+
+  struct PSInput
+  {
+    float4 Pos : SV_POSITION;
+    float4 PosVS : VIEWSPACEPOS;
+    float4 PosWS : WORLDSPACEPOS;
+    float3 Normal : NORMAL;
+    float2 UV  : TEX_COORD; 
+  };
+
+  struct PSOutput
+  {
+    float4 Color : SV_TARGET0;
+  };
+
+  void Vertex(in VSInput VSIn, out PSInput PSIn)
+  {
+    PSIn.Pos = LocalToClip(float4(VSIn.Pos, 1.0));
+    PSIn.PosVS = LocalToView(float4(VSIn.Pos, 1.0));
+    PSIn.PosWS = LocalToWorld(float4(VSIn.Pos, 1.0));
+    PSIn.Normal = normalize(float3(LocalToWorld(float4(VSIn.Normal, 0.0))));
+    PSIn.UV  = VSIn.UV;
+  };
+
+  void Pixel(in PSInput PSIn, out PSOutput PSOut)
+  {
+    SurfaceProps props = CreateSurfaceProps(PSIn.PosWS, PSIn.Normal, color.rgb, 0.00, 1.00);
+    PSOut.Color = float4(DoPBR(props, PSIn.Pos.xy, PSIn.PosVS.z), color.a);
+  };
+
+Name: Test Shader
+Entry Points:
+  Vertex: Vertex
+  Pixel: Pixel
+Type: Opaque
+Cull Mode: Back
+Depth Enable: true
+Depth Func: Less Equal
+Properties:
+  color: 
+    type: Color
+    default: !!hex 0xFFFFFFFF
+    default: 0xFFFFFFFF

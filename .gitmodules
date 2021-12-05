@@ -1,0 +1,3 @@
+[submodule "vendor/Luddite-Engine"]
+	path = vendor/Luddite-Engine
+	url = https://github.com/Aquaticholic/Luddite-Engine
